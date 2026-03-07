@@ -1,0 +1,3 @@
+import Home from './page';
+
+// Placeholder empty file for layout structure? No we already have layout.tsx and page.tsx

@@ -1,0 +1,10 @@
+node_modules
+.next
+out
+*.zip
+*.log
+.DS_Store
+.env*
+build.log
+testsprite_run_output.txt
+testsprite_tests/tmp/

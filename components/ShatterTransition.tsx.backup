@@ -1,0 +1,80 @@
+'use client';
+import { motion, useScroll, useTransform } from 'framer-motion';
+import { useRef } from 'react';
+
+/**
+ * A highly performant CSS-grid shatter effect.
+ * It takes the final frame of the blackhole animation and shatters it apart 
+ * smoothly using hardware-accelerated 3D transforms as the user scrolls.
+ */
+export default function ShatterTransition({ imageSrc = '/blackhole_frames/blackhole_frame_1807.jpg' }) {
+    const containerRef = useRef<HTMLDivElement>(null);
+
+    // Track scroll over this transition element
+    const { scrollYProgress } = useScroll({
+        target: containerRef,
+        offset: ["start start", "end end"]
+    });
+
+    const gridSize = 4; // 4x4 grid = 16 shards
+    const totalShards = gridSize * gridSize;
+
+    // We make this container 200vh tall to give the user time to scroll through the shatter animation 
+    // before the next section appears underneath.
+    return (
+        <div ref={containerRef} className="relative h-[150vh] w-full z-50">
+            <div className="sticky top-0 h-screen w-full overflow-hidden perspective-[1000px] z-50">
+                {/* The Galaxy background that is revealed from *under* the shattering pieces */}
+                <div className="absolute inset-0 bg-black" />
+
+                <div
+                    className="absolute inset-0 grid"
+                    style={{
+                        gridTemplateColumns: `repeat(${gridSize}, 1fr)`,
+                        gridTemplateRows: `repeat(${gridSize}, 1fr)`
+                    }}
+                >
+                    {Array.from({ length: totalShards }).map((_, i) => {
+                        const row = Math.floor(i / gridSize);
+                        const col = i % gridSize;
+
+                        // Calculate how much of the original image each shard should show
+                        const bgPosX = (col / (gridSize - 1)) * 100;
+                        const bgPosY = (row / (gridSize - 1)) * 100;
+
+                        // Create chaotic random 3D shatter trajectories for each shard
+                        const randomX = (Math.random() - 0.5) * 2000;
+                        const randomY = (Math.random() - 0.5) * 2000;
+                        const randomZ = Math.random() * 1000 + 500;
+                        const randomRotateX = (Math.random() - 0.5) * 720;
+                        const randomRotateY = (Math.random() - 0.5) * 720;
+                        const randomRotateZ = (Math.random() - 0.5) * 360;
+
+                        // Transform them based on scroll progress
+                        const x = useTransform(scrollYProgress, [0, 1], [0, randomX]);
+                        const y = useTransform(scrollYProgress, [0, 1], [0, randomY]);
+                        const z = useTransform(scrollYProgress, [0, 1], [0, randomZ]);
+                        const rotateX = useTransform(scrollYProgress, [0, 1], [0, randomRotateX]);
+                        const rotateY = useTransform(scrollYProgress, [0, 1], [0, randomRotateY]);
+                        const rotateZ = useTransform(scrollYProgress, [0, 1], [0, randomRotateZ]);
+                        const opacity = useTransform(scrollYProgress, [0.4, 1], [1, 0]);
+
+                        return (
+                            <motion.div
+                                key={i}
+                                style={{
+                                    x, y, z, rotateX, rotateY, rotateZ, opacity,
+                                    backgroundImage: `url(${imageSrc})`,
+                                    backgroundSize: `${gridSize * 100}% ${gridSize * 100}%`,
+                                    backgroundPosition: `${bgPosX}% ${bgPosY}%`,
+                                    transformStyle: 'preserve-3d'
+                                }}
+                                className="w-full h-full border border-black/10 shadow-2xl"
+                            />
+                        );
+                    })}
+                </div>
+            </div>
+        </div>
+    );
+}

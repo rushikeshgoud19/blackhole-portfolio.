@@ -1,0 +1,195 @@
+[
+  {
+    "id": "TC001",
+    "title": "Scrollytelling sequence progresses with scroll and reaches an end state",
+    "description": "Verifies that scrolling advances the 3D canvas sequence and reveals quotes/overlays through to the end of the scrollytelling experience.",
+    "category": "Scrollytelling Interactions",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Scroll down the page by a moderate amount"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"ProjectTextOverlays\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Scroll down the page by a large amount"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"quote\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Scroll to the bottom of the page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"end\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC002",
+    "title": "Quotes and overlays remain paused when user is idle (no scroll)",
+    "description": "Verifies that without scrolling, the scrollytelling sequence does not advance and overlays stay hidden or unchanged.",
+    "category": "Scrollytelling Interactions",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"ProjectTextOverlays\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"quote\" is not visible"
+      },
+      {
+        "type": "action",
+        "description": "Wait for 3 seconds"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"quote\" is not visible"
+      },
+      {
+        "type": "action",
+        "description": "Scroll down the page by a moderate amount"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"quote\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC003",
+    "title": "Continuous scrolling reveals multiple sequential quote/overlay changes",
+    "description": "Verifies that repeated scrolling causes multiple distinct overlay/quote states to appear in sequence.",
+    "category": "Scrollytelling Interactions",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Scroll down the page by a small amount"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"quote\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Scroll down the page by a moderate amount"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"quote\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Scroll down the page by a moderate amount"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"ProjectTextOverlays\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC004",
+    "title": "Scrolling back upward returns overlays to earlier states",
+    "description": "Verifies that reversing scroll direction returns the scrollytelling overlays to previously shown content (earlier in the sequence).",
+    "category": "Scrollytelling Interactions",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Scroll down the page by a large amount"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"quote\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Scroll up the page by a moderate amount"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"quote\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Scroll up the page by a moderate amount"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"ProjectTextOverlays\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC005",
+    "title": "3D canvas area remains visible while scrollytelling progresses",
+    "description": "Verifies that the canvas component used for scrollytelling remains present/visible while the user scrolls through the sequence.",
+    "category": "Scrollytelling Interactions",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"ProjectCanvasScroll\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Scroll down the page by a moderate amount"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"ProjectCanvasScroll\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Scroll down the page by a large amount"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"ProjectCanvasScroll\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Scroll to the bottom of the page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"ProjectCanvasScroll\" is visible"
+      }
+    ]
+  }
+]

@@ -1,0 +1,189 @@
+/* eslint-disable */
+'use client';
+
+import { motion, useScroll, useTransform, MotionValue } from 'framer-motion';
+import { PortfolioData } from '@/data/projects';
+import { useRef } from 'react';
+
+interface Props {
+    project: PortfolioData;
+}
+
+const ThoughtSection = ({
+    thought,
+    index,
+    total,
+    scrollYProgress,
+    themeColor
+}: {
+    thought: string,
+    index: number,
+    total: number,
+    scrollYProgress: MotionValue<number>,
+    themeColor: string
+}) => {
+    // Reserve the first 85% of the scroll for floating thoughts
+    const OVERALL_THOUGHTS_DURATION = 0.85;
+    const sectionSize = OVERALL_THOUGHTS_DURATION / total;
+    const start = index * sectionSize;
+
+    // Fade in, stay a bit, fade out
+    const fadeInEnd = start + (sectionSize * 0.20);
+    const holdEnd = start + (sectionSize * 0.60);
+    const fadeOutEnd = start + (sectionSize * 0.80);
+    // 0.80 to 1.0 of this chunk is pure gap
+
+    const opacity = useTransform(
+        scrollYProgress,
+        [start, fadeInEnd, holdEnd, fadeOutEnd],
+        [0, 1, 1, 0]
+    );
+
+    // Make the thoughts drift slowly upwards for a floaty space feel
+    const y = useTransform(
+        scrollYProgress,
+        [start, fadeOutEnd],
+        [80, -80]
+    );
+
+    const scale = useTransform(
+        scrollYProgress,
+        [start, holdEnd, fadeOutEnd],
+        [0.8, 1, 1.2]
+    );
+
+    // Spark Animation - flashes brilliantly right when the thought starts to appear
+    const sparkOpacity = useTransform(
+        scrollYProgress,
+        [start, start + (sectionSize * 0.04), fadeInEnd],
+        [0, 1, 0]
+    );
+    const sparkScale = useTransform(
+        scrollYProgress,
+        [start, fadeInEnd],
+        [0, 1.2]
+    );
+
+    const getPositionStyles = (i: number): React.CSSProperties => {
+        const positions: React.CSSProperties[] = [
+            { top: '30%', left: '10%', textAlign: 'left' as const, maxWidth: '600px' },
+            { top: '50%', right: '10%', textAlign: 'right' as const, maxWidth: '600px' },
+            { bottom: '30%', left: '15%', textAlign: 'left' as const, maxWidth: '600px' },
+            { top: '20%', right: '15%', textAlign: 'right' as const, maxWidth: '600px' },
+            { top: '60%', left: '10%', textAlign: 'left' as const, maxWidth: '600px' },
+            { bottom: '20%', right: '10%', textAlign: 'right' as const, maxWidth: '600px' },
+            { top: '40%', left: '0', right: '0', margin: '0 auto', textAlign: 'center' as const, maxWidth: '800px' },
+        ];
+        return positions[i % positions.length];
+    };
+
+    return (
+        <motion.div
+            style={{ opacity, scale, y }}
+            className="absolute inset-0 pointer-events-none z-10 w-full h-full"
+        >
+            <div className="absolute" style={getPositionStyles(index)}>
+                {/* The Spark */}
+                <motion.div
+                    style={{ opacity: sparkOpacity, scale: sparkScale }}
+                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 pointer-events-none mix-blend-screen"
+                >
+                    <div className="absolute inset-0 rounded-full blur-[30px]" style={{ backgroundColor: themeColor }} />
+                    <div className="absolute inset-0 rounded-full blur-[10px] bg-white opacity-60" />
+                </motion.div>
+
+                <p className="relative z-10 text-3xl md:text-5xl lg:text-7xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-white to-white/70 leading-tight"
+                    style={{
+                        filter: `drop-shadow(0 4px 20px rgba(0,0,0,0.8)) drop-shadow(0 0 60px ${themeColor})`
+                    }}>
+                    {thought}
+                </p>
+            </div>
+        </motion.div>
+    );
+};
+
+// The user requested a dynamic presentation of the full story at the end of the scroll
+const FullStoryDynamicScroll = ({
+    project,
+    scrollYProgress
+}: {
+    project: PortfolioData,
+    scrollYProgress: MotionValue<number>
+}) => {
+    // The story appears in the final 15% of the scroll
+    const startOffset = 0.85;
+    const endOffset = 1.0;
+
+    const opacity = useTransform(scrollYProgress, [startOffset, startOffset + 0.05, endOffset], [0, 1, 1]);
+    const y = useTransform(scrollYProgress, [startOffset, endOffset], [200, -100]);
+    const blurObj = useTransform(scrollYProgress, [startOffset, startOffset + 0.05], [20, 0]);
+
+    // Framer motion doesn't support filter transforms directly via useTransform sometimes without a template
+    const filter = blurObj;
+
+    return (
+        <motion.div
+            style={{ opacity, y }}
+            className="absolute inset-x-0 bottom-0 pointer-events-none z-20 flex flex-col items-center justify-start h-screen"
+        >
+            <motion.div
+                style={{ filter: useTransform(blurObj, blur => `blur(${blur}px)`) }}
+                className="max-w-5xl mx-auto px-6 text-center pt-[30vh]"
+            >
+                <h3 className="text-5xl md:text-8xl font-black mb-16 tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-400"
+                    style={{ filter: `drop-shadow(0 0 60px ${project.themeColor}) drop-shadow(0 10px 30px rgba(0,0,0,0.8))` }}>
+                    {project.aboutMeSection.title}
+                </h3>
+
+                <div className="space-y-12 text-2xl md:text-4xl text-white/90 leading-relaxed font-medium tracking-tight text-center"
+                    style={{ filter: `drop-shadow(0 10px 30px rgba(0,0,0,0.8))` }}>
+                    {project.aboutMeSection.paragraphs.map((text, idx) => {
+                        // Create a staggered fade for each paragraph based on scroll
+                        const pStart = startOffset + 0.02 + (idx * 0.03);
+                        const pOpacity = useTransform(scrollYProgress, [pStart, pStart + 0.03], [0, 1]);
+                        const pY = useTransform(scrollYProgress, [pStart, pStart + 0.05], [30, 0]);
+
+                        return (
+                            <motion.p
+                                key={idx}
+                                className="border-l-2 border-transparent"
+                                style={{ opacity: pOpacity, y: pY }}
+                            >
+                                {text}
+                            </motion.p>
+                        );
+                    })}
+                </div>
+            </motion.div>
+        </motion.div>
+    );
+};
+
+export default function GalaxyTextOverlays({ project }: Props) {
+    const containerRef = useRef<HTMLDivElement>(null);
+
+    const { scrollYProgress } = useScroll({
+        target: containerRef,
+        offset: ["start start", "end end"]
+    });
+
+    return (
+        <div ref={containerRef} className="absolute top-0 left-0 w-full h-[4000vh] pointer-events-none z-40">
+            <div className="sticky top-0 w-full h-screen overflow-hidden flex flex-col">
+                {project.aboutMeSection.thoughts.map((thought, idx) => (
+                    <ThoughtSection
+                        key={idx}
+                        thought={thought}
+                        index={idx}
+                        total={project.aboutMeSection.thoughts.length}
+                        scrollYProgress={scrollYProgress}
+                        themeColor={project.themeColor}
+                    />
+                ))}
+
+                <FullStoryDynamicScroll project={project} scrollYProgress={scrollYProgress} />
+            </div>
+        </div>
+    );
+}

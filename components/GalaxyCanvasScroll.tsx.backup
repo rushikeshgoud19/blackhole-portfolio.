@@ -1,0 +1,157 @@
+/* eslint-disable */
+'use client';
+
+import { useEffect, useRef } from 'react';
+import { motion, useScroll, useTransform, useSpring, useMotionValueEvent } from 'framer-motion';
+
+interface Props {
+    folderPath: string;
+}
+
+const FRAME_COUNT = 964;
+const PRELOAD_BATCH = 30;
+
+export default function GalaxyCanvasScroll({ folderPath }: Props) {
+    const containerRef = useRef<HTMLDivElement>(null);
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+
+    // Store all instantiated Images in memory to quickly draw to canvas without React state overhead
+    const imageCache = useRef<Map<number, HTMLImageElement>>(new Map());
+    // Track the latest loaded frame that we can fall back to if the current one isn't ready
+    const lastDrawnFrameIndex = useRef<number>(1);
+
+    const { scrollYProgress } = useScroll({
+        target: containerRef,
+        offset: ["start start", "end end"]
+    });
+
+    const smoothProgress = useSpring(scrollYProgress, {
+        stiffness: 100,
+        damping: 30,
+        restDelta: 0.001
+    });
+
+    const frameIndex = useTransform(smoothProgress, [0, 1], [1, FRAME_COUNT]);
+
+    // Preloader function to chunk requests ahead of the user
+    const preloadImages = (startIndex: number) => {
+        for (let i = startIndex; i < startIndex + PRELOAD_BATCH && i <= FRAME_COUNT; i++) {
+            if (!imageCache.current.has(i)) {
+                const img = new Image();
+                const paddedIndex = i.toString().padStart(3, '0');
+                // The filenames have a space in them: "galaxy being_frame_..."
+                img.src = `${folderPath}/galaxy being_frame_${paddedIndex}.jpg`;
+                imageCache.current.set(i, img);
+            }
+        }
+    };
+
+    const drawImageToCanvas = (img: HTMLImageElement) => {
+        if (!canvasRef.current || !img.complete || img.naturalHeight === 0) return;
+        const canvas = canvasRef.current;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+
+        // Ensure canvas bounds match viewport for crispness
+        if (canvas.width !== window.innerWidth || canvas.height !== window.innerHeight) {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        const canvasRatio = canvas.width / canvas.height;
+        const imgRatio = img.width / img.height;
+        let drawWidth, drawHeight, offsetX, offsetY;
+
+        if (canvasRatio > imgRatio) {
+            drawWidth = canvas.width;
+            drawHeight = canvas.width / imgRatio;
+            offsetX = 0;
+            offsetY = (canvas.height - drawHeight) / 2;
+        } else {
+            drawWidth = canvas.height * imgRatio;
+            drawHeight = canvas.height;
+            offsetX = (canvas.width - drawWidth) / 2;
+            offsetY = 0;
+        }
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
+    };
+
+    // Draw frame updates from the smooth scroll progress dynamically
+    useMotionValueEvent(frameIndex, "change", (latest) => {
+        const index = Math.min(Math.max(Math.round(latest), 1), FRAME_COUNT);
+
+        let img = imageCache.current.get(index);
+
+        if (!img) {
+            // Instantiate on the fly if user scrubbed too fast past preloads
+            img = new Image();
+            const paddedIndex = index.toString().padStart(3, '0');
+            img.src = `${folderPath}/galaxy being_frame_${paddedIndex}.jpg`;
+            imageCache.current.set(index, img);
+        }
+
+        if (img.complete && img.naturalHeight !== 0) {
+            drawImageToCanvas(img);
+            lastDrawnFrameIndex.current = index;
+        } else {
+            // Fallback draw: if you scrub extremely fast, the last successfully drawn frame stays on screen nicely 
+            const fallbackImg = imageCache.current.get(lastDrawnFrameIndex.current);
+            if (fallbackImg && fallbackImg.complete) {
+                drawImageToCanvas(fallbackImg);
+            }
+
+            // Once it loads, draw it
+            img.onload = () => {
+                const currentIndex = Math.min(Math.max(Math.round(frameIndex.get()), 1), FRAME_COUNT);
+                if (Math.abs(currentIndex - index) < 5) {
+                    drawImageToCanvas(img);
+                    lastDrawnFrameIndex.current = index;
+                }
+            };
+        }
+
+        // Continually push the preload window forward
+        preloadImages(index + 1);
+    });
+
+    useEffect(() => {
+        // Initial setup load
+        preloadImages(1);
+
+        const handleResize = () => {
+            const img = imageCache.current.get(lastDrawnFrameIndex.current);
+            if (img) drawImageToCanvas(img);
+        };
+
+        // Setup canvas
+        handleResize();
+
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, [folderPath]);
+
+    const startFadeOpacity = useTransform(scrollYProgress, [0, 0.05], [0, 1]);
+    const endFadeOpacity = useTransform(scrollYProgress, [0.98, 1], [0, 1]);
+
+    return (
+        <div ref={containerRef} className="relative h-[4000vh] w-full">
+            <div className="sticky top-0 h-screen w-full overflow-hidden bg-black z-10">
+                <motion.canvas
+                    ref={canvasRef}
+                    className="absolute inset-0 h-full w-full object-cover will-change-transform"
+                    style={{ transform: 'translateZ(0)', opacity: startFadeOpacity }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black pointer-events-none opacity-50" />
+
+
+                {/* Fade to black at the very end to seamlessly transition to the Experience section */}
+                <motion.div
+                    style={{ opacity: endFadeOpacity }}
+                    className="absolute inset-0 bg-black pointer-events-none z-20"
+                />
+            </div>
+        </div>
+    );
+}
