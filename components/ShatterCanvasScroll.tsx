@@ -3,8 +3,9 @@
 import { useEffect, useRef } from 'react';
 import { motion, useScroll, useTransform, useMotionValueEvent } from 'framer-motion';
 
-const FRAME_COUNT = 839;
-const PRELOAD_BATCH = 60;
+const FRAME_COUNT = 168; // Sampled from 839 (1/5 step)
+const FRAME_STEP = 5;
+const PRELOAD_BATCH = 40;
 
 export default function ShatterCanvasScroll() {
     const containerRef = useRef<HTMLDivElement>(null);
@@ -36,7 +37,8 @@ export default function ShatterCanvasScroll() {
         for (let i = Math.max(1, startIndex); i < startIndex + PRELOAD_BATCH && i <= FRAME_COUNT; i++) {
             if (!imageCache.current.has(i)) {
                 const img = new Image();
-                const paddedIndex = i.toString().padStart(3, '0');
+                const actualIndex = Math.min((i - 1) * FRAME_STEP + 1, 839);
+                const paddedIndex = actualIndex.toString().padStart(3, '0');
                 img.src = `/shatter_frames/shatter_frame_${paddedIndex}.jpg`;
                 imageCache.current.set(i, img);
             }
@@ -94,7 +96,8 @@ export default function ShatterCanvasScroll() {
                 if (!img) {
                     // Instantiate on the fly if user scrubbed too fast past preloads
                     img = new Image();
-                    const paddedIndex = index.toString().padStart(3, '0');
+                    const actualIndex = Math.min((index - 1) * FRAME_STEP + 1, 839);
+                    const paddedIndex = actualIndex.toString().padStart(3, '0');
                     img.src = `/shatter_frames/shatter_frame_${paddedIndex}.jpg`;
                     imageCache.current.set(index, img);
                 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useScroll, useTransform, useMotionValueEvent } from 'framer-motion';
 
 interface Props {
@@ -8,10 +8,13 @@ interface Props {
     totalQuotes?: number;
 }
 
-const FRAME_COUNT = 1807;
-const PRELOAD_BATCH = 60;
+const FRAME_COUNT = 226; // Sampled from 1807 (1/8 step)
+const FRAME_STEP = 8;
+const PRELOAD_BATCH = 40; // Smaller batches to avoid request flooding
+const INITIAL_REQUIRED_FRAMES = 15; // Minimum frames needed for "ready" state
 
 export default function ProjectCanvasScroll({ folderPath, totalQuotes = 12 }: Props) {
+    const [isReady, setIsReady] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const canvasCtxRef = useRef<CanvasRenderingContext2D | null>(null);
@@ -42,8 +45,14 @@ export default function ProjectCanvasScroll({ folderPath, totalQuotes = 12 }: Pr
         for (let i = startIndex; i < startIndex + PRELOAD_BATCH && i <= FRAME_COUNT; i++) {
             if (!imageCache.current.has(i)) {
                 const img = new Image();
-                const paddedIndex = i.toString().padStart(3, '0');
+                const actualIndex = Math.min((i - 1) * FRAME_STEP + 1, 1807);
+                const paddedIndex = actualIndex.toString().padStart(3, '0');
                 img.src = `${folderPath}/blackhole_frame_${paddedIndex}.jpg`;
+                img.onload = () => {
+                    if (imageCache.current.size >= INITIAL_REQUIRED_FRAMES) {
+                        setIsReady(true);
+                    }
+                };
                 imageCache.current.set(i, img);
             }
         }
@@ -99,7 +108,8 @@ export default function ProjectCanvasScroll({ folderPath, totalQuotes = 12 }: Pr
                 if (!img) {
                     // Instantiate on the fly if user scrubbed too fast past preloads
                     img = new Image();
-                    const paddedIndex = index.toString().padStart(3, '0');
+                    const actualIndex = Math.min((index - 1) * FRAME_STEP + 1, 1807);
+                    const paddedIndex = actualIndex.toString().padStart(3, '0');
                     img.src = `${folderPath}/blackhole_frame_${paddedIndex}.jpg`;
                     imageCache.current.set(index, img);
                 }
@@ -162,7 +172,7 @@ export default function ProjectCanvasScroll({ folderPath, totalQuotes = 12 }: Pr
                 <canvas
                     data-testid="project-canvas"
                     ref={canvasRef}
-                    className="absolute inset-0 h-full w-full object-cover opacity-80 will-change-transform"
+                    className={`absolute inset-0 h-full w-full object-cover opacity-80 transition-opacity duration-1000 will-change-transform ${isReady ? 'opacity-80' : 'opacity-0'}`}
                     style={{ transform: 'translateZ(0)' }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black pointer-events-none" />
