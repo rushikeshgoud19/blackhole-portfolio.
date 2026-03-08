@@ -35,11 +35,12 @@ export default function Home() {
 
                 {/* Details Section */}
                 <motion.section
-                    initial={{ opacity: 0, y: 100 }}
+                    id="portfolio-details"
+                    initial={{ opacity: 0, y: 80 }}
                     whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-100px" }}
-                    transition={{ duration: 0.8 }}
-                    className="relative z-20 py-32 px-6 max-w-7xl mx-auto bg-black snap-start"
+                    viewport={{ once: true, amount: 0.1 }}
+                    transition={{ duration: 0.9, ease: 'easeOut' }}
+                    className="relative z-20 py-32 px-6 max-w-7xl mx-auto bg-black scroll-mt-24"
                 >
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
                         <div>
