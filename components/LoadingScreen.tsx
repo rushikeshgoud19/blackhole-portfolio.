@@ -8,7 +8,7 @@ export default function LoadingScreen() {
 
     useEffect(() => {
         // Allow the page to hydrate and load critical resources
-        const timer = setTimeout(() => setIsLoading(false), 2200);
+        const timer = setTimeout(() => setIsLoading(false), 1000);
         return () => clearTimeout(timer);
     }, []);
 
