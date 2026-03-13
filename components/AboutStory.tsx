@@ -2,15 +2,8 @@
 
 import { motion, useInView } from 'framer-motion';
 import { useRef, useEffect, useState } from 'react';
+import ConstellationSkills from './ConstellationSkills';
 
-const skills = [
-    { name: 'Next.js', level: 90 },
-    { name: 'TypeScript', level: 85 },
-    { name: 'React', level: 92 },
-    { name: 'Python', level: 88 },
-    { name: 'AI / ML', level: 80 },
-    { name: 'Framer Motion', level: 85 },
-];
 
 function AnimatedCounter({ target, suffix = '' }: { target: number; suffix?: string }) {
     const [count, setCount] = useState(0);
@@ -125,37 +118,15 @@ export default function AboutStory({ paragraphs }: { paragraphs: string[] }) {
                             ))}
                         </motion.div>
 
-                        {/* Skill Bars */}
+                        {/* Constellation Skill Graph */}
                         <motion.div
                             initial={{ opacity: 0, y: 30 }}
                             animate={isInView ? { opacity: 1, y: 0 } : {}}
                             transition={{ duration: 0.7, delay: 0.5 }}
                             className="space-y-5"
                         >
-                            <h4 className="text-[10px] tracking-[0.2em] text-white/25 uppercase font-body font-medium mb-4">Core Skills</h4>
-                            {skills.map((skill, i) => (
-                                <div key={skill.name} className="space-y-2">
-                                    <div className="flex justify-between items-center">
-                                        <span className="text-sm font-body text-white/60">{skill.name}</span>
-                                        <motion.span
-                                            initial={{ opacity: 0 }}
-                                            animate={isInView ? { opacity: 1 } : {}}
-                                            transition={{ delay: 0.8 + i * 0.1 }}
-                                            className="text-[10px] text-white/25 font-body"
-                                        >
-                                            {skill.level}%
-                                        </motion.span>
-                                    </div>
-                                    <div className="h-[3px] w-full bg-white/[0.06] rounded-full overflow-hidden">
-                                        <motion.div
-                                            initial={{ width: 0 }}
-                                            animate={isInView ? { width: `${skill.level}%` } : {}}
-                                            transition={{ duration: 1.2, delay: 0.7 + i * 0.1, ease: [0.22, 1, 0.36, 1] }}
-                                            className="h-full rounded-full bg-gradient-to-r from-[#00E5FF] to-[#00E5FF]/40"
-                                        />
-                                    </div>
-                                </div>
-                            ))}
+                            <h4 className="text-[10px] tracking-[0.2em] text-white/25 uppercase font-body font-medium mb-4">Core Skills Constellation</h4>
+                            <ConstellationSkills />
                         </motion.div>
 
                         {/* Location / Availability */}
