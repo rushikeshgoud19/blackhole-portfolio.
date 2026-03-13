@@ -45,8 +45,8 @@ export default function Home() {
                 </div>
 
                 {/* The "visually crazy" animated portfolio reveal */}
-                {/* We use -mt-[100vh] to overlap the final scroll phase of the shatter canvas */}
-                <div className="snap-start relative z-30 -mt-[100vh]">
+                {/* The "visually crazy" animated portfolio reveal */}
+                <div className="snap-start relative z-30 -mt-24">
                     <PortfolioReveal project={project} />
                 </div>
 

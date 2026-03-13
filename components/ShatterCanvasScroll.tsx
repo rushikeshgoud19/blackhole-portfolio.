@@ -35,7 +35,7 @@ export default function ShatterCanvasScroll() {
     const scrollOpacity = useTransform(scrollYProgress, [0.95, 1], [1, 0]);
 
     return (
-        <div ref={containerRef} className="relative h-[400vh] w-full z-40">
+        <div ref={containerRef} className="relative h-[250vh] w-full z-40">
             <div className="sticky top-0 h-screen w-full overflow-hidden z-40">
                 <motion.canvas
                     data-testid="project-canvas"
@@ -47,8 +47,8 @@ export default function ShatterCanvasScroll() {
 
             {/* The invisible snapping structural anchors */}
             <div className="absolute top-0 left-0 w-full h-full flex flex-col pointer-events-none">
-                {Array.from({ length: 4 }).map((_, idx) => (
-                    <div key={`shatter-snap-${idx}`} className="h-[100vh] w-full shrink-0 snap-start" />
+                {Array.from({ length: 3 }).map((_, idx) => (
+                    <div key={`shatter-snap-${idx}`} className="h-[80vh] w-full shrink-0 snap-start" />
                 ))}
             </div>
         </div>

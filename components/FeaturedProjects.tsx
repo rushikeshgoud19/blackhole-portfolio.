@@ -15,23 +15,27 @@ interface Project {
 
 export default function FeaturedProjects({ projects }: { projects: Project[] }) {
     const containerRef = useRef<HTMLDivElement>(null);
-    const isInView = useInView(containerRef, { once: true, margin: "-100px" });
+    const isInView = useInView(containerRef, { once: true, margin: "-10%" });
     const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
 
     const cardColors = ['#00E5FF', '#FF9100', '#FF3366'];
     const caseStudyIcons = [Target, Zap, TrendingUp];
 
     return (
-        <section ref={containerRef} className="relative w-full py-32 px-6 bg-black z-20 overflow-hidden">
+        <section 
+            ref={containerRef} 
+            className="relative w-full py-32 px-6 bg-black z-20 overflow-hidden"
+            style={{ perspective: '1200px' }}
+        >
             {/* Background Orb */}
             <div className="absolute bottom-0 right-0 w-[500px] h-[500px] rounded-full blur-[180px] opacity-[0.06] pointer-events-none bg-[#FF3366]" />
 
-            <div className="max-w-7xl mx-auto">
+            <div className="max-w-7xl mx-auto" style={{ transformStyle: 'preserve-3d' }}>
                 {/* Section Header */}
                 <motion.div
-                    initial={{ opacity: 0, y: 40 }}
-                    animate={isInView ? { opacity: 1, y: 0 } : {}}
-                    transition={{ duration: 0.8 }}
+                    initial={{ opacity: 0, scale: 0.8, z: -100, filter: 'blur(15px)' }}
+                    animate={isInView ? { opacity: 1, scale: 1, z: 0, filter: 'blur(0px)' } : {}}
+                    transition={{ duration: 1.2, ease: "easeOut" }}
                     className="mb-20"
                 >
                     <h2 className="section-label text-[#FF3366] mb-4">Selected Work</h2>
@@ -40,7 +44,7 @@ export default function FeaturedProjects({ projects }: { projects: Project[] }) 
                 </motion.div>
 
                 {/* Project Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6" style={{ transformStyle: 'preserve-3d' }}>
                     {projects.map((project, i) => {
                         const color = cardColors[i % cardColors.length];
                         const isExpanded = expandedIndex === i;
@@ -48,11 +52,12 @@ export default function FeaturedProjects({ projects }: { projects: Project[] }) 
                         return (
                             <motion.div
                                 key={project.name}
-                                initial={{ opacity: 0, y: 60 }}
-                                animate={isInView ? { opacity: 1, y: 0 } : {}}
-                                transition={{ duration: 0.7, delay: 0.3 + i * 0.15, ease: [0.22, 1, 0.36, 1] }}
+                                initial={{ opacity: 0, scale: 0.7, z: -200, filter: 'blur(10px)' }}
+                                animate={isInView ? { opacity: 1, scale: 1, z: 0, filter: 'blur(0px)' } : {}}
+                                transition={{ duration: 1.5, delay: 0.3 + i * 0.2, ease: [0.22, 1, 0.36, 1] }}
                                 className="group relative flex flex-col rounded-2xl border border-white/[0.06] bg-white/[0.015] backdrop-blur-sm overflow-hidden hover:border-white/[0.12] transition-all duration-500 cursor-pointer"
                                 onClick={() => setExpandedIndex(isExpanded ? null : i)}
+                                style={{ transformStyle: 'preserve-3d' }}
                             >
                                 {/* Color Accent Bar */}
                                 <div className="h-[2px] w-full" style={{ background: `linear-gradient(to right, ${color}, transparent)` }} />

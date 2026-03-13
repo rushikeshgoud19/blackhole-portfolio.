@@ -13,20 +13,25 @@ interface Role {
 
 export default function ExperienceTimeline({ roles }: { roles: Role[] }) {
     const containerRef = useRef<HTMLDivElement>(null);
-    const isInView = useInView(containerRef, { once: true, margin: "-100px" });
+    const isInView = useInView(containerRef, { once: true, margin: "-10%" });
 
     return (
-        <section ref={containerRef} id="experience-section" className="relative w-full py-32 px-6 bg-black z-20 overflow-hidden scroll-mt-24">
+        <section 
+            ref={containerRef} 
+            id="experience-section" 
+            className="relative w-full py-32 px-6 bg-black z-20 overflow-hidden scroll-mt-24"
+            style={{ perspective: '1200px' }}
+        >
             {/* Background Accents */}
             <div className="absolute top-1/2 left-0 w-[600px] h-[600px] rounded-full blur-[180px] opacity-[0.06] pointer-events-none bg-[#FF9100]" />
             <div className="absolute bottom-0 right-0 w-[400px] h-[400px] rounded-full blur-[150px] opacity-[0.04] pointer-events-none bg-[#00E5FF]" />
 
-            <div className="max-w-5xl mx-auto">
+            <div className="max-w-5xl mx-auto" style={{ transformStyle: 'preserve-3d' }}>
                 {/* Section Header */}
                 <motion.div 
-                    initial={{ opacity: 0, y: 40 }}
-                    animate={isInView ? { opacity: 1, y: 0 } : {}}
-                    transition={{ duration: 0.8 }}
+                    initial={{ opacity: 0, scale: 0.8, z: -100, filter: 'blur(15px)' }}
+                    animate={isInView ? { opacity: 1, scale: 1, z: 0, filter: 'blur(0px)' } : {}}
+                    transition={{ duration: 1.2, ease: "easeOut" }}
                     className="mb-20"
                 >
                     <h2 className="section-label text-[#FF9100] mb-4">Journey So Far</h2>
@@ -34,29 +39,30 @@ export default function ExperienceTimeline({ roles }: { roles: Role[] }) {
                 </motion.div>
 
                 {/* Timeline */}
-                <div className="relative">
+                <div className="relative" style={{ transformStyle: 'preserve-3d' }}>
                     {/* Vertical Line */}
                     <motion.div
-                        initial={{ scaleY: 0 }}
-                        animate={isInView ? { scaleY: 1 } : {}}
-                        transition={{ duration: 1.5, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                        initial={{ scaleY: 0, opacity: 0 }}
+                        animate={isInView ? { scaleY: 1, opacity: 1 } : {}}
+                        transition={{ duration: 2, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
                         className="absolute left-0 md:left-8 top-0 bottom-0 w-px bg-gradient-to-b from-[#FF9100]/60 via-[#00E5FF]/40 to-transparent origin-top"
                     />
 
                     {roles.map((role, i) => (
                         <motion.div
                             key={i}
-                            initial={{ opacity: 0, x: -50 }}
-                            animate={isInView ? { opacity: 1, x: 0 } : {}}
-                            transition={{ duration: 0.7, delay: 0.5 + i * 0.25, ease: [0.22, 1, 0.36, 1] }}
+                            initial={{ opacity: 0, scale: 0.8, z: -100, filter: 'blur(10px)' }}
+                            animate={isInView ? { opacity: 1, scale: 1, z: 0, filter: 'blur(0px)' } : {}}
+                            transition={{ duration: 1.5, delay: 0.6 + i * 0.3, ease: [0.22, 1, 0.36, 1] }}
                             className="relative pl-10 md:pl-20 pb-16 last:pb-0 group"
+                            style={{ transformStyle: 'preserve-3d' }}
                         >
                             {/* Timeline Dot */}
                             <div className="absolute left-0 md:left-8 top-2 -translate-x-1/2">
                                 <div className="w-3 h-3 rounded-full border-2 border-[#00E5FF]/60 bg-black group-hover:bg-[#00E5FF] group-hover:shadow-[0_0_20px_rgba(0,229,255,0.5)] transition-all duration-500" />
                             </div>
 
-                            <div className="p-8 rounded-2xl border border-white/[0.06] bg-white/[0.015] backdrop-blur-sm hover:border-[#00E5FF]/20 hover:bg-white/[0.03] transition-all duration-500 group">
+                            <div className="p-8 rounded-2xl border border-white/[0.06] bg-white/[0.015] backdrop-blur-sm hover:border-[#00E5FF]/20 hover:bg-white/[0.03] transition-all duration-500 group will-change-transform">
                                 {/* Inner top shine */}
                                 <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent rounded-t-2xl" />
 
