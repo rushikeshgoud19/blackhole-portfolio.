@@ -55,7 +55,7 @@ export default function PortfolioReveal({ project }: { project: PortfolioData })
             {/* Introduction Text Block */}
             <div className="relative z-10 w-full max-w-7xl mx-auto px-6 mb-32 flex flex-col items-center text-center">
                 <motion.h2
-                    className="text-7xl md:text-9xl font-black mb-4 tracking-tighter uppercase flex overflow-hidden perspective-1000"
+                    className="text-5xl sm:text-6xl md:text-8xl lg:text-9xl font-black mb-4 tracking-tighter uppercase flex overflow-hidden perspective-1000"
                     style={{ textShadow: `0 0 80px ${project.themeColor}50`, color: 'white' }}
                 >
                     {nameLetters.map((char, i) => (

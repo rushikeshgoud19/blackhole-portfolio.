@@ -58,7 +58,7 @@ const QuoteSection = ({
     return (
         <motion.div
             style={{ opacity, y }}
-            className="absolute inset-0 pointer-events-none z-10 w-full h-full"
+            className="absolute inset-0 pointer-events-none z-10 w-full h-full px-6 md:px-0"
         >
             <div className="absolute w-full" style={getPositionStyles(index)}>
                 {/* The Quote */}

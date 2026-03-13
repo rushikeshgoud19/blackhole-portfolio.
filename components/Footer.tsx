@@ -26,7 +26,7 @@ export default function Footer() {
                     transition={{ duration: 0.8 }}
                     className="flex flex-col items-center text-center mb-32"
                 >
-                    <h2 className="section-title text-5xl md:text-8xl mb-8 text-transparent bg-clip-text bg-gradient-to-br from-white via-white to-white/40">
+                    <h2 className="section-title text-4xl sm:text-5xl md:text-8xl mb-8 text-transparent bg-clip-text bg-gradient-to-br from-white via-white to-white/40">
                         Let&apos;s Build <br/> The Future.
                     </h2>
                     <motion.a 

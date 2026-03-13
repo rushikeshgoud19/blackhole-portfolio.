@@ -96,7 +96,7 @@ export default function Navbar() {
                             <circle cx="50" cy="50" r="22" fill="none" stroke="url(#singularity)" strokeWidth="1.5" strokeDasharray="4,6" className="animate-[spin_6s_linear_infinite]" />
                             <circle cx="50" cy="50" r="8" fill="#00E5FF" className="animate-[pulse_3s_ease-in-out_infinite]" style={{ filter: 'drop-shadow(0 0 10px #00E5FF)' }} />
                         </svg>
-                        <span className="text-lg font-display font-bold tracking-[0.15em] text-white/90">
+                        <span className="text-lg font-display font-bold tracking-[0.15em] text-white/90 hidden sm:inline-block">
                             RUSHIKESH
                         </span>
                     </button>
