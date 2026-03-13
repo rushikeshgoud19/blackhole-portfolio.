@@ -36,7 +36,7 @@ export default function ShatterCanvasScroll() {
 
     return (
         <div ref={containerRef} className="relative h-[400vh] w-full z-40">
-            <div className="sticky top-0 h-screen w-full overflow-hidden bg-black z-40">
+            <div className="sticky top-0 h-screen w-full overflow-hidden z-40">
                 <motion.canvas
                     data-testid="project-canvas"
                     ref={canvasRef}
