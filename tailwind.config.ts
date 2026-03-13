@@ -15,6 +15,10 @@ const config: Config = {
                 deepViolet: "#3a0066",
                 accretion: "#FFB300"
             },
+            fontFamily: {
+                display: ['var(--font-display)', 'system-ui', 'sans-serif'],
+                body: ['var(--font-body)', 'system-ui', 'sans-serif'],
+            },
         },
     },
     plugins: [],

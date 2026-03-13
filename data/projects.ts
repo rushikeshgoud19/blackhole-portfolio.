@@ -11,7 +11,7 @@ export interface PortfolioData {
     quotes: { title: string; subtitle: string }[];
     aboutMeSection: { title: string; paragraphs: string[]; thoughts: string[] };
     experienceSection: { title: string; roles: { company: string; position: string; duration: string; description: string }[] };
-    projectsSection: { title: string; projects: { name: string; tech: string; description: string }[] };
+    projectsSection: { title: string; projects: { name: string; tech: string; description: string; challenge: string; approach: string; impact: string }[] };
     detailsSection: { title: string; description: string; imageAlt: string };
     architectureSection: { title: string; description: string };
     linksSection: {
@@ -34,19 +34,16 @@ export const portfolio: PortfolioData = {
     gradient: "linear-gradient(135deg, #0a0015 0%, #3a0066 100%)",
     techStack: ["Next.js", "TypeScript", "Tailwind CSS", "Framer Motion", "Canvas"],
 
-    // Intense space quotes mixed with personal story, synced to the visual journey
+    // Curated quotes — each scroll step = one full quote transition
     quotes: [
         { title: "Black hole.", subtitle: "The True meaning of life is just a void where you are trying to find the light." },
         { title: "Driven by curiosity.", subtitle: "Viewing the world through a completely different lens." },
-        { title: "The value of solitude.", subtitle: "Learning to appreciate the tiniest details of life." },
+        { title: "The solitary thinker.", subtitle: "Finding clarity and purpose in moments of deep reflection." },
         { title: "A profound shift.", subtitle: "Losing my mother at 10 forced me to grow up fast." },
-        { title: "Heavy responsibility.", subtitle: "I was still just a child trying to find my way." },
-        { title: "Event Horizon.", subtitle: "The boundary of no return for my creative journey." },
-        { title: "A child's promise.", subtitle: "I swore to always follow my heart." },
         { title: "\"I will support you.\"", subtitle: "My mother's words became my anchor." },
-        { title: "Spaghettification.", subtitle: "The ultimate stretch of reality at the edge of the unknown." },
-        { title: "Constant reflection.", subtitle: "Are my choices today honoring that promise?" },
-        { title: "An analytical mind.", subtitle: "Analyzing every scenario to stay on the right path." },
+        { title: "Analyzing every scenario.", subtitle: "Ensuring every choice honors the path I've chosen." },
+        { title: "A promise kept.", subtitle: "Following my heart, just as I promised her." },
+        { title: "Event Horizon.", subtitle: "The boundary of no return for my creative journey." },
         { title: "Into the Singularity.", subtitle: "Where passion and curiosity converge entirely." }
     ],
 
@@ -104,19 +101,28 @@ export const portfolio: PortfolioData = {
         title: "Featured Work",
         projects: [
             {
-                name: "Singularity AI",
-                tech: "Python, TensorFlow, Next.js",
-                description: "An AI product designed to process massive datasets in real-time. Custom transformer architectures built to handle edge-case scenarios."
+                name: "Rushikesh",
+                tech: "Next.js, TypeScript, Framer Motion, Tailwind CSS",
+                description: "A highly immersive, interactive scrollytelling portfolio web experience. Designed to showcase my creative development skills, driven by dynamic scroll-linked animations.",
+                challenge: "Architecting a seamless, visually striking scrollytelling experience without sacrificing performance or accessibility.",
+                approach: "Mapped canvas frames to scroll progress and leveraged Framer Motion for buttery-smooth section transitions.",
+                impact: "Created a personal digital space that captures attention and serves as a living, breathing resume."
             },
             {
                 name: "Accretion Disk",
                 tech: "Godot, GDScript, Blender",
-                description: "A fully realized 3D RPG survival adventure game. Custom shaders, aggressive frustum culling, and a responsive physics engine."
+                description: "A fully realized 3D RPG survival adventure game. Custom shaders, aggressive frustum culling, and a responsive physics engine.",
+                challenge: "Rendering complex 3D environments with smooth 60fps performance.",
+                approach: "Implemented aggressive frustum culling, LOD systems, and custom shaders optimized for the Godot engine.",
+                impact: "Achieved stable 60fps with 200+ simultaneous objects and dynamic lighting."
             },
             {
                 name: "Neural Vision",
                 tech: "YOLO, OpenCV, Python",
-                description: "Advanced computer vision utilizing YOLO for high-speed, high-accuracy hand pose estimation with zero bottlenecking."
+                description: "Advanced computer vision utilizing YOLO for high-speed, high-accuracy hand pose estimation with zero bottlenecking.",
+                challenge: "Real-time hand pose estimation with zero frame drops.",
+                approach: "Optimized YOLO inference pipeline with custom pre/post-processing and GPU memory management.",
+                impact: "30fps real-time tracking with 95%+ accuracy across diverse lighting conditions."
             }
         ]
     },

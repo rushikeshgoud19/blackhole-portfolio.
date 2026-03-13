@@ -1,7 +1,9 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
-import { motion, useScroll, useTransform, useMotionValueEvent } from 'framer-motion';
+import { useMemo, useRef } from 'react';
+import { motion, useTransform } from 'framer-motion';
+import { useScrollAgent } from '@/hooks/useScrollAgent';
+import { AnimationAgent } from '@/lib/AnimationAgent';
 
 const FRAME_COUNT = 168; // Sampled from 839 (1/5 step)
 const FRAME_STEP = 5;
@@ -9,156 +11,27 @@ const PRELOAD_BATCH = 40;
 
 export default function ShatterCanvasScroll() {
     const containerRef = useRef<HTMLDivElement>(null);
-    const canvasRef = useRef<HTMLCanvasElement>(null);
-    const canvasCtxRef = useRef<CanvasRenderingContext2D | null>(null);
 
-    // Store all instantiated Images in memory to quickly draw to canvas without React state overhead
-    const imageCache = useRef<Map<number, HTMLImageElement>>(new Map());
-    // Track the latest loaded frame that we can fall back to if the current one isn't ready
-    const lastDrawnFrameIndex = useRef<number>(1);
+    const agent = useMemo(() => new AnimationAgent({
+        preloadBatchSize: PRELOAD_BATCH,
+        maxFrames: FRAME_COUNT,
+        frameStep: FRAME_STEP,
+        maxActualFrame: 839,
+        getImageUrl: (actualIndex) => {
+            const paddedIndex = actualIndex.toString().padStart(3, '0');
+            return `/shatter_frames/shatter_frame_${paddedIndex}.jpg`;
+        }
+    }), []);
 
-    const currentFrame = useRef<number>(1);
-    const targetFrame = useRef<number>(1);
-    const animationFrameRef = useRef<number>(0);
-
-    const { scrollYProgress } = useScroll({
-        target: containerRef,
-        offset: ["start start", "end end"]
+    const { canvasRef, scrollYProgress } = useScrollAgent({
+        targetRef: containerRef,
+        agent,
+        frameCount: FRAME_COUNT
     });
-
-    const rawFrameIndex = useTransform(scrollYProgress, [0, 1], [1, FRAME_COUNT]);
-
-    useMotionValueEvent(rawFrameIndex, "change", (latest) => {
-        targetFrame.current = latest;
-    });
-
-    // Preloader function to chunk requests ahead of the user
-    const preloadImages = (startIndex: number) => {
-        for (let i = Math.max(1, startIndex); i < startIndex + PRELOAD_BATCH && i <= FRAME_COUNT; i++) {
-            if (!imageCache.current.has(i)) {
-                const img = new Image();
-                const actualIndex = Math.min((i - 1) * FRAME_STEP + 1, 839);
-                const paddedIndex = actualIndex.toString().padStart(3, '0');
-                img.src = `/shatter_frames/shatter_frame_${paddedIndex}.jpg`;
-                imageCache.current.set(i, img);
-            }
-        }
-    };
-
-    const drawImageToCanvas = (img: HTMLImageElement) => {
-        if (!canvasRef.current || !img.complete || img.naturalHeight === 0) return;
-        const canvas = canvasRef.current;
-
-        if (!canvasCtxRef.current) {
-            canvasCtxRef.current = canvas.getContext('2d', { alpha: false });
-        }
-        const ctx = canvasCtxRef.current;
-        if (!ctx) return;
-
-        // Ensure canvas bounds match viewport for crispness
-        if (canvas.width !== window.innerWidth || canvas.height !== window.innerHeight) {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-
-        const canvasRatio = canvas.width / canvas.height;
-        const imgRatio = img.width / img.height;
-        let drawWidth, drawHeight, offsetX, offsetY;
-
-        // "cover" algorithm
-        if (canvasRatio > imgRatio) {
-            drawWidth = canvas.width;
-            drawHeight = canvas.width / imgRatio;
-            offsetX = 0;
-            offsetY = (canvas.height - drawHeight) / 2;
-        } else {
-            drawWidth = canvas.height * imgRatio;
-            drawHeight = canvas.height;
-            offsetX = (canvas.width - drawWidth) / 2;
-            offsetY = 0;
-        }
-
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
-    };
-
-    useEffect(() => {
-        const renderLoop = () => {
-            // Smooth lerp towards target scroll position
-            currentFrame.current += (targetFrame.current - currentFrame.current) * 0.15;
-
-            const index = Math.min(Math.max(Math.round(currentFrame.current), 1), FRAME_COUNT);
-
-            // Avoid redundant renders if we haven't moved enough to change frames
-            if (index !== lastDrawnFrameIndex.current) {
-                let img = imageCache.current.get(index);
-
-                if (!img) {
-                    // Instantiate on the fly if user scrubbed too fast past preloads
-                    img = new Image();
-                    const actualIndex = Math.min((index - 1) * FRAME_STEP + 1, 839);
-                    const paddedIndex = actualIndex.toString().padStart(3, '0');
-                    img.src = `/shatter_frames/shatter_frame_${paddedIndex}.jpg`;
-                    imageCache.current.set(index, img);
-                }
-
-                if (img.complete && img.naturalHeight !== 0) {
-                    drawImageToCanvas(img);
-                    lastDrawnFrameIndex.current = index;
-                } else {
-                    // Fallback draw: if you scrub extremely fast, keep drawing the last good frame
-                    const fallbackImg = imageCache.current.get(lastDrawnFrameIndex.current);
-                    if (fallbackImg && fallbackImg.complete) {
-                        drawImageToCanvas(fallbackImg);
-                    }
-
-                    img.onload = () => {
-                        const currentIndex = Math.min(Math.max(Math.round(currentFrame.current), 1), FRAME_COUNT);
-                        if (Math.abs(currentIndex - index) < 5) {
-                            drawImageToCanvas(img);
-                            lastDrawnFrameIndex.current = index;
-                        }
-                    };
-                }
-
-                // Push preload window forward
-                preloadImages(index + 1);
-            }
-
-            animationFrameRef.current = requestAnimationFrame(renderLoop);
-        };
-
-        // Start loop
-        animationFrameRef.current = requestAnimationFrame(renderLoop);
-
-        return () => {
-            if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
-        };
-    }, []);
-
-    useEffect(() => {
-        // Initial setup load
-        preloadImages(1);
-
-        const handleResize = () => {
-            if (canvasRef.current) {
-                canvasCtxRef.current = canvasRef.current.getContext('2d', { alpha: false });
-            }
-            const img = imageCache.current.get(lastDrawnFrameIndex.current);
-            if (img) drawImageToCanvas(img);
-        };
-
-        // Setup canvas delay to wait for first load
-        setTimeout(() => handleResize(), 100);
-
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
-    }, []);
 
     const scale = useTransform(scrollYProgress, [0.95, 1], [1, 1.1]);
     const opacity = useTransform(scrollYProgress, [0.95, 1], [1, 0]);
 
-    // Using a 400vh height to make the 839 frames feel reasonably paced
     return (
         <div ref={containerRef} className="relative h-[400vh] w-full z-40">
             <div className="sticky top-0 h-screen w-full overflow-hidden bg-black z-40">

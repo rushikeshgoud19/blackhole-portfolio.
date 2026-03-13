@@ -101,9 +101,15 @@ export default function PortfolioReveal({ project }: { project: PortfolioData })
                         <h4 className="text-gray-500 text-sm tracking-widest uppercase mb-4 font-bold">Latest Innovation</h4>
                         <h5 className="text-4xl text-white font-bold mb-4">{project.projectsSection.projects[0].name}</h5>
                         <p className="text-gray-300 text-lg mb-8 leading-relaxed">{project.projectsSection.projects[0].description}</p>
-                        <div className="text-[#00E5FF] uppercase tracking-widest text-sm font-bold flex items-center gap-2 group-hover:translate-x-2 transition-transform">
+                        <button
+                            onClick={() => {
+                                const el = document.getElementById('portfolio-details');
+                                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            }}
+                            className="text-[#00E5FF] uppercase tracking-widest text-sm font-bold flex items-center gap-2 group-hover:translate-x-2 transition-transform cursor-pointer"
+                        >
                             Explore Project <span className="text-lg">→</span>
-                        </div>
+                        </button>
                     </motion.div>
                 )}
 
