@@ -38,40 +38,21 @@ export function useScrollAgent({ targetRef, agent, frameCount, onReady }: UseScr
             const index = Math.min(Math.max(Math.round(currentFrame.current), 1), frameCount);
 
             if (index !== lastDrawnFrameIndex.current) {
-                let img = agent.lazyLoadImage(index);
+                // Try to get the exact frame OR the nearest available frame instantly
+                let img = agent.getNearestFrame(index);
 
-                if (img?.complete && img?.naturalHeight !== 0) {
-                    if (canvasRef.current && img) {
+                if (img) {
+                    if (canvasRef.current) {
                         if (!canvasCtxRef.current) canvasCtxRef.current = canvasRef.current.getContext('2d', { alpha: false });
                         if (canvasCtxRef.current) {
                             agent.drawImageToCanvas(img, canvasRef.current, canvasCtxRef.current);
                             lastDrawnFrameIndex.current = index;
                         }
                     }
-                } else {
-                    const fallbackImg = agent.getFallbackImage(lastDrawnFrameIndex.current);
-                    if (fallbackImg && fallbackImg.complete && canvasRef.current) {
-                        if (!canvasCtxRef.current) canvasCtxRef.current = canvasRef.current.getContext('2d', { alpha: false });
-                        if (canvasCtxRef.current) {
-                            agent.drawImageToCanvas(fallbackImg, canvasRef.current, canvasCtxRef.current);
-                        }
-                    }
-
-                    if (img) {
-                        img.onload = () => {
-                            const currentIndex = Math.min(Math.max(Math.round(currentFrame.current), 1), frameCount);
-                            if (Math.abs(currentIndex - index) < 5 && canvasRef.current) {
-                                if (!canvasCtxRef.current) canvasCtxRef.current = canvasRef.current.getContext('2d', { alpha: false });
-                                if (canvasCtxRef.current) {
-                                    agent.drawImageToCanvas(img, canvasRef.current, canvasCtxRef.current);
-                                    lastDrawnFrameIndex.current = index;
-                                }
-                            }
-                        };
-                    }
                 }
 
-                agent.preloadImages(index + 1);
+                // Passive background load nearby frames
+                agent.preloadImages(index);
             }
 
             animationFrameRef.current = requestAnimationFrame(renderLoop);
@@ -85,13 +66,14 @@ export function useScrollAgent({ targetRef, agent, frameCount, onReady }: UseScr
     }, [agent, frameCount]);
 
     useEffect(() => {
-        agent.preloadImages(1, onReady, 2);
+        // High-priority skeleton load for immediate interaction
+        agent.preloadKeyframes(onReady);
 
         const handleResize = () => {
             if (canvasRef.current) {
                 canvasCtxRef.current = canvasRef.current.getContext('2d', { alpha: false });
             }
-            const img = agent.getFallbackImage(lastDrawnFrameIndex.current);
+            const img = agent.getNearestFrame(lastDrawnFrameIndex.current);
             if (img && canvasRef.current && canvasCtxRef.current) {
                 agent.drawImageToCanvas(img, canvasRef.current, canvasCtxRef.current);
             }

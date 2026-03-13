@@ -66,7 +66,7 @@ export default function RootLayout({
 }) {
     return (
         <html lang="en" className={`${plusJakarta.variable} ${outfit.variable} snap-y snap-mandatory scroll-smooth`}>
-            <body className="font-body antialiased min-h-screen bg-black text-white">
+            <body className="relative font-body antialiased min-h-screen bg-black text-white">
                 {children}
             </body>
         </html>

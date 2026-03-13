@@ -53,28 +53,28 @@ export default function Home() {
                 <SectionDivider />
 
                 {/* About / Personal Story Section */}
-                <div className="snap-start">
+                <div className="snap-start relative">
                     <AboutStory paragraphs={project.aboutMeSection.paragraphs} />
                 </div>
 
                 <SectionDivider />
 
                 {/* Experience Timeline */}
-                <div className="snap-start">
+                <div className="snap-start relative">
                     <ExperienceTimeline roles={project.experienceSection.roles} />
                 </div>
 
                 <SectionDivider />
 
                 {/* Featured Projects Showcase — Case Study Format */}
-                <div className="snap-start">
+                <div className="snap-start relative">
                     <FeaturedProjects projects={project.projectsSection.projects} />
                 </div>
 
                 <SectionDivider />
 
                 {/* ========== PREMIUM DETAILS SECTION ========== */}
-                <div className="snap-start">
+                <div className="snap-start relative">
                     <section id="portfolio-details" className="relative z-20 py-32 px-6 bg-black scroll-mt-24 overflow-hidden">
                         {/* Background Orbs */}
                         <div className="absolute top-20 left-0 w-[600px] h-[600px] rounded-full blur-[180px] opacity-[0.08] pointer-events-none" style={{ backgroundColor: project.themeColor }} />
@@ -354,7 +354,7 @@ export default function Home() {
 
             </motion.div>
 
-            <div className="snap-start">
+            <div className="snap-start relative">
                 <Footer />
             </div>
         </main>

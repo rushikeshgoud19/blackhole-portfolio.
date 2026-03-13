@@ -9,8 +9,8 @@ interface Props {
     totalQuotes?: number;
 }
 
-const FRAME_COUNT = 226; // Sampled from 1807 (1/8 step)
-const FRAME_STEP = 8;
+const FRAME_COUNT = 151; // Sampled from 1807 (1/12 step)
+const FRAME_STEP = 12;
 const PRELOAD_BATCH = 40;
 
 export default function ProjectCanvasScroll({ folderPath, totalQuotes = 12 }: Props) {
