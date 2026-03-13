@@ -27,8 +27,6 @@ export default function FeaturedProjects({ projects }: { projects: Project[] }) 
             className="relative w-full py-32 px-6 bg-black z-20 overflow-hidden"
             style={{ perspective: '1200px' }}
         >
-            {/* Background Orb */}
-            <div className="absolute bottom-0 right-0 w-[500px] h-[500px] rounded-full blur-[180px] opacity-[0.06] pointer-events-none bg-[#FF3366]" />
 
             <div className="max-w-7xl mx-auto" style={{ transformStyle: 'preserve-3d' }}>
                 {/* Section Header */}
@@ -59,6 +57,7 @@ export default function FeaturedProjects({ projects }: { projects: Project[] }) 
                                 onClick={() => setExpandedIndex(isExpanded ? null : i)}
                                 style={{ transformStyle: 'preserve-3d' }}
                             >
+
                                 {/* Color Accent Bar */}
                                 <div className="h-[2px] w-full" style={{ background: `linear-gradient(to right, ${color}, transparent)` }} />
 

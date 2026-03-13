@@ -2,15 +2,33 @@
 
 import { motion, useMotionTemplate, useMotionValue } from 'framer-motion';
 import { MouseEvent, ReactNode } from 'react';
+import NeuralBackground from './NeuralBackground';
 
 interface BentoCardProps {
     children: ReactNode;
     className?: string;
     delay?: number;
     glowColor?: string;
+    neural?: boolean;
+    neuralColor?: string;
+    neuralNodeCount?: number;
+    neuralLabel?: string;
+    skillNodes?: string[];
+    anchors?: { x: number, y: number, label: string }[];
 }
 
-export default function BentoCard({ children, className = '', delay = 0, glowColor = 'rgba(255, 255, 255, 0.06)' }: BentoCardProps) {
+export default function BentoCard({ 
+    children, 
+    className = '', 
+    delay = 0, 
+    glowColor = 'rgba(255, 255, 255, 0.06)', 
+    neural = false,
+    neuralColor,
+    neuralNodeCount,
+    neuralLabel,
+    skillNodes = [],
+    anchors = []
+}: BentoCardProps) {
     const mouseX = useMotionValue(0);
     const mouseY = useMotionValue(0);
 
@@ -43,9 +61,23 @@ export default function BentoCard({ children, className = '', delay = 0, glowCol
                 }}
             />
 
+            {neural && (
+                <div className="absolute inset-0 z-0">
+                    <NeuralBackground 
+                        color={neuralColor} 
+                        nodeCount={neuralNodeCount} 
+                        label={neuralLabel} 
+                        skillNodes={skillNodes}
+                        anchors={anchors}
+                        className="opacity-20 group-hover:opacity-40 transition-opacity duration-700"
+                    />
+                </div>
+            )}
+
             {/* Top-edge subtle shine */}
             <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
 
+            {/* Content Layer */}
             <div className="relative z-10 flex h-full flex-col">{children}</div>
         </motion.div>
     );

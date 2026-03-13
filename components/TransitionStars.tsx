@@ -1,8 +1,11 @@
 'use client';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 
 export default function TransitionStars() {
+    const [mounted, setMounted] = useState(false);
+    useEffect(() => setMounted(true), []);
+
     const containerRef = useRef<HTMLDivElement>(null);
     const { scrollYProgress } = useScroll({
         target: containerRef,
@@ -12,6 +15,8 @@ export default function TransitionStars() {
     const scale = useTransform(scrollYProgress, [0, 1], [0.8, 2]);
     const opacity = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [0, 1, 1, 0]);
     const rotate = useTransform(scrollYProgress, [0, 1], [0, 30]);
+
+    if (!mounted) return null;
 
     return (
         <div ref={containerRef} className="absolute inset-0 z-20 overflow-hidden pointer-events-none">

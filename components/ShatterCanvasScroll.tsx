@@ -7,7 +7,7 @@ import { AnimationAgent } from '@/lib/AnimationAgent';
 
 const FRAME_COUNT = 168; // Sampled from 839 (1/5 step)
 const FRAME_STEP = 5;
-const PRELOAD_BATCH = 40;
+const PRELOAD_BATCH = 20;
 
 export default function ShatterCanvasScroll() {
     const [isReady, setIsReady] = useState(false);

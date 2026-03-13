@@ -99,8 +99,13 @@ export default function Home() {
                             <div className="grid grid-cols-1 md:grid-cols-4 gap-5 auto-rows-[220px]">
 
                                 {/* Card 1 — Main Spotlight / Journey (Large) */}
-                                <BentoCard className="md:col-span-2 md:row-span-2" delay={0.1} glowColor={`${project.themeColor}30`}>
+                                <BentoCard 
+                                    className="md:col-span-2 md:row-span-2" 
+                                    delay={0.1} 
+                                    glowColor={`${project.themeColor}30`} 
+                                >
                                     <div className="flex flex-col h-full justify-between relative">
+                                        <div className="absolute top-0 right-0 font-mono text-[9px] text-[#00E5FF]/20 tracking-tighter">[ SYSTEM_INITIALIZED_01 ]</div>
                                         <svg className="absolute -top-8 -right-8 w-40 h-40 opacity-10 animate-[spin_20s_linear_infinite]" viewBox="0 0 200 200">
                                             <circle cx="100" cy="100" r="80" fill="none" stroke="#00E5FF" strokeWidth="1" strokeDasharray="8 6" />
                                             <circle cx="100" cy="100" r="50" fill="none" stroke="#FF9100" strokeWidth="0.5" strokeDasharray="4 8" />
@@ -161,9 +166,15 @@ export default function Home() {
                                 </BentoCard>
 
                                 {/* Card 3 — Status Beacon */}
-                                <BentoCard className="md:col-span-1 md:row-span-1" delay={0.2}>
+                                <BentoCard 
+                                    className="md:col-span-1 md:row-span-1" 
+                                    delay={0.2} 
+                                >
                                     <div className="flex flex-col h-full justify-between">
                                         <h4 className="text-xs tracking-[0.15em] text-white/40 uppercase font-body font-medium">Status</h4>
+                                        <div className="absolute top-4 right-4 animate-pulse">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-400/80 shadow-[0_0_10px_rgba(52,211,153,0.5)]" />
+                                        </div>
                                         <div>
                                             <div className="flex items-center gap-3 mb-3">
                                                 <span className="relative flex h-3 w-3">
@@ -179,11 +190,14 @@ export default function Home() {
                                 </BentoCard>
 
                                 {/* Card 4 — Tech Stack Pills */}
-                                <BentoCard className="md:col-span-2 md:row-span-1" delay={0.25}>
+                                <BentoCard 
+                                    className="md:col-span-2 md:row-span-1" 
+                                    delay={0.25} 
+                                >
                                     <div className="flex flex-col h-full justify-between">
                                         <div className="flex items-center justify-between">
                                             <h4 className="text-xs tracking-[0.15em] text-white/40 uppercase font-body font-medium">Tech Stack</h4>
-                                            <span className="text-xs text-white/25 font-body">{project.techStack.length} technologies</span>
+                                            <div className="font-mono text-[9px] text-[#00E5FF]/30 tracking-widest">[ ENGINE LOADED ]</div>
                                         </div>
                                         <div className="flex flex-wrap gap-2.5">
                                             {project.techStack.map((tech, i) => (
@@ -241,8 +255,13 @@ export default function Home() {
                                 </BentoCard>
 
                                 {/* Card 7 — Philosophy (NEW) */}
-                                <BentoCard className="md:col-span-2 md:row-span-1" delay={0.38} glowColor="rgba(255, 51, 102, 0.08)">
-                                    <div className="flex flex-col h-full justify-between">
+                                <BentoCard 
+                                    className="md:col-span-2 md:row-span-1" 
+                                    delay={0.38} 
+                                    glowColor="rgba(255, 51, 102, 0.08)" 
+                                >
+                                    <div className="flex flex-col h-full justify-between relative">
+                                        <div className="absolute top-0 right-0 font-mono text-[9px] text-[#FF3366]/20 tracking-tighter">[ LOGIC_CORE_BRAIN ]</div>
                                         <h4 className="text-xs tracking-[0.15em] text-white/40 uppercase font-body font-medium">Philosophy</h4>
                                         <div>
                                             <h3 className="text-xl font-display font-bold text-white mb-3">Build with purpose, ship with precision.</h3>
@@ -255,7 +274,8 @@ export default function Home() {
 
                                 {/* Card 8 — Approach (NEW) */}
                                 <BentoCard className="md:col-span-2 md:row-span-1" delay={0.42} glowColor="rgba(0, 229, 255, 0.06)">
-                                    <div className="flex flex-col h-full justify-between">
+                                    <div className="flex flex-col h-full justify-between relative">
+                                        <div className="absolute top-0 right-0 font-mono text-[9px] text-[#00E5FF]/20 tracking-tighter">[ ALGORITHM_V2 ]</div>
                                         <h4 className="text-xs tracking-[0.15em] text-white/40 uppercase font-body font-medium">How I Work</h4>
                                         <div className="flex gap-6">
                                             {[
