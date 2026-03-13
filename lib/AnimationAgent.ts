@@ -20,25 +20,51 @@ export class AnimationAgent {
         this.getImageUrl = config.getImageUrl;
     }
 
-    public preloadImages(startIndex: number, onInitialFramesReady?: () => void, requiredInitial: number = 15) {
-        let loadedCount = 0;
-        for (let i = Math.max(1, startIndex); i < startIndex + this.preloadBatchSize && i <= this.maxFrames; i++) {
-            if (!this.imageCache.has(i)) {
-                // Must be in browser to use Image
-                if (typeof window === 'undefined') return;
+    public preloadImages(startIndex: number, onInitialFramesReady?: () => void, requiredInitial: number = 5) {
+        if (typeof window === 'undefined') return;
 
+        let loadedCount = 0;
+        const initialBatchSize = Math.min(this.preloadBatchSize, requiredInitial * 2);
+
+        // 1. Immediately prioritize the very first frames needed (high priority)
+        for (let i = Math.max(1, startIndex); i < startIndex + initialBatchSize && i <= this.maxFrames; i++) {
+            if (!this.imageCache.has(i)) {
                 const img = new Image();
                 img.src = this.getImageUrl(this.getActualIndex(i));
                 
                 img.onload = () => {
                     loadedCount++;
-                    if (onInitialFramesReady && this.imageCache.size >= requiredInitial && loadedCount >= requiredInitial) {
+                    // Trigger ready once the absolutely necessary frames are loaded
+                    if (onInitialFramesReady && loadedCount >= requiredInitial) {
                         onInitialFramesReady();
+                        // Only call once
+                        onInitialFramesReady = undefined;
                     }
                 };
                 this.imageCache.set(i, img);
+            } else {
+                // If it was already loaded/cached, count it
+                loadedCount++;
+                if (onInitialFramesReady && loadedCount >= requiredInitial) {
+                    onInitialFramesReady();
+                    onInitialFramesReady = undefined;
+                }
             }
         }
+
+        // 2. Defer the loading of the remaining frames in the batch so we don't block main thread
+        const deferFn = window.requestIdleCallback || ((cb) => setTimeout(cb, 50));
+        
+        deferFn(() => {
+            const startDeferred = Math.max(1, startIndex) + initialBatchSize;
+            for (let i = startDeferred; i < startIndex + this.preloadBatchSize && i <= this.maxFrames; i++) {
+                if (!this.imageCache.has(i)) {
+                    const img = new Image();
+                    img.src = this.getImageUrl(this.getActualIndex(i));
+                    this.imageCache.set(i, img);
+                }
+            }
+        });
     }
 
     private getActualIndex(mappedIndex: number): number {

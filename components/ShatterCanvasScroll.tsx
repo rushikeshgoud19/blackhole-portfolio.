@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useRef } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { motion, useTransform } from 'framer-motion';
 import { useScrollAgent } from '@/hooks/useScrollAgent';
 import { AnimationAgent } from '@/lib/AnimationAgent';
@@ -10,6 +10,7 @@ const FRAME_STEP = 5;
 const PRELOAD_BATCH = 40;
 
 export default function ShatterCanvasScroll() {
+    const [isReady, setIsReady] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
 
     const agent = useMemo(() => new AnimationAgent({
@@ -26,11 +27,12 @@ export default function ShatterCanvasScroll() {
     const { canvasRef, scrollYProgress } = useScrollAgent({
         targetRef: containerRef,
         agent,
-        frameCount: FRAME_COUNT
+        frameCount: FRAME_COUNT,
+        onReady: () => setIsReady(true)
     });
 
     const scale = useTransform(scrollYProgress, [0.95, 1], [1, 1.1]);
-    const opacity = useTransform(scrollYProgress, [0.95, 1], [1, 0]);
+    const scrollOpacity = useTransform(scrollYProgress, [0.95, 1], [1, 0]);
 
     return (
         <div ref={containerRef} className="relative h-[400vh] w-full z-40">
@@ -38,8 +40,8 @@ export default function ShatterCanvasScroll() {
                 <motion.canvas
                     data-testid="project-canvas"
                     ref={canvasRef}
-                    className="absolute inset-0 h-full w-full object-cover will-change-transform"
-                    style={{ transform: 'translateZ(0)', scale, opacity }}
+                    className={`absolute inset-0 h-full w-full object-cover will-change-transform transition-opacity duration-1000 ${isReady ? 'opacity-100' : 'opacity-0'}`}
+                    style={{ transform: 'translateZ(0)', scale, opacity: scrollOpacity }}
                 />
             </div>
 

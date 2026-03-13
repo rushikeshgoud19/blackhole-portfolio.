@@ -85,7 +85,7 @@ export function useScrollAgent({ targetRef, agent, frameCount, onReady }: UseScr
     }, [agent, frameCount]);
 
     useEffect(() => {
-        agent.preloadImages(1, onReady, 15);
+        agent.preloadImages(1, onReady, 5);
 
         const handleResize = () => {
             if (canvasRef.current) {
