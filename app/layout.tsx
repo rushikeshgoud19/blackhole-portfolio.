@@ -65,7 +65,7 @@ export default function RootLayout({
     children: React.ReactNode;
 }) {
     return (
-        <html lang="en" className={`${plusJakarta.variable} ${outfit.variable} snap-y snap-mandatory scroll-smooth`}>
+        <html lang="en" className={`${plusJakarta.variable} ${outfit.variable} snap-y snap-proximity scroll-smooth`}>
             <body className="relative font-body antialiased min-h-screen bg-black text-white">
                 {children}
             </body>

@@ -14,6 +14,8 @@ export interface PortfolioData {
     projectsSection: { title: string; projects: { name: string; tech: string; description: string; challenge: string; approach: string; impact: string }[] };
     detailsSection: { title: string; description: string; imageAlt: string };
     architectureSection: { title: string; description: string };
+    mobileFolderPath: string;
+    mobileMaxFrames: number;
     linksSection: {
         status: string;
         type: string;
@@ -136,6 +138,8 @@ export const portfolio: PortfolioData = {
         title: "The Stack",
         description: "Utilizing modern frameworks like Next.js mapped with fluid animations from Framer Motion. It's about combining structural integrity with creative freedom to deliver stellar performance."
     },
+    mobileFolderPath: "/images/portfolio",
+    mobileMaxFrames: 147,
     linksSection: {
         status: "Available",
         type: "Freelance / Full-time",

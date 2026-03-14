@@ -8,6 +8,17 @@ export class AnimationAgent {
     private loadQueue: number[] = [];
     private isProcessingQueue = false;
 
+    // Cached layout metrics to prevent per-frame math
+    private layoutMetrics: {
+        width: number;
+        height: number;
+        drawWidth: number;
+        drawHeight: number;
+        offsetX: number;
+        offsetY: number;
+        dpr: number;
+    } | null = null;
+
     constructor(config: {
         preloadBatchSize?: number;
         maxFrames: number;
@@ -23,7 +34,7 @@ export class AnimationAgent {
     }
 
     // 1. Load a sparse "skeleton" of frames immediately so the whole scroll works instantly (e.g., every 15th frame)
-    public preloadKeyframes(onReady?: () => void) {
+    public preloadKeyframes(onReady?: () => void, onProgress?: (loaded: number, total: number) => void) {
         if (typeof window === 'undefined') return;
 
         const keyframeStep = Math.max(1, Math.floor(this.maxFrames / 15)); // Try to get ~15 keyframes
@@ -38,7 +49,8 @@ export class AnimationAgent {
         }
 
         let loadedCount = 0;
-        const requiredForReady = Math.min(3, keyframes.length);
+        const totalKeyframes = keyframes.length;
+        const requiredForReady = Math.min(3, totalKeyframes);
 
         keyframes.forEach(index => {
             if (!this.imageCache.has(index)) {
@@ -47,6 +59,7 @@ export class AnimationAgent {
                 
                 img.onload = () => {
                     loadedCount++;
+                    onProgress?.(loadedCount, totalKeyframes);
                     if (onReady && loadedCount >= requiredForReady) {
                         onReady();
                         onReady = undefined; // Fire once
@@ -58,6 +71,7 @@ export class AnimationAgent {
                 this.imageCache.set(index, img);
             } else {
                 loadedCount++;
+                onProgress?.(loadedCount, totalKeyframes);
                 if (onReady && loadedCount >= requiredForReady) {
                     onReady();
                     onReady = undefined;
@@ -94,7 +108,8 @@ export class AnimationAgent {
         if (this.isProcessingQueue || this.loadQueue.length === 0 || typeof window === 'undefined') return;
         this.isProcessingQueue = true;
 
-        const deferFn = window.requestIdleCallback || ((cb) => setTimeout(cb, 50));
+        type IdleCallback = (deadline: { didTimeout: boolean; timeRemaining: () => number }) => void;
+        const deferFn = (typeof window !== 'undefined' && (window as unknown as { requestIdleCallback?: (cb: IdleCallback) => number }).requestIdleCallback?.bind(window)) || ((cb: IdleCallback) => setTimeout(() => cb({ didTimeout: false, timeRemaining: () => 0 }), 50));
         
         const loadNext = () => {
             // Process up to 3 images per idle cycle to prevent blocking
@@ -163,29 +178,49 @@ export class AnimationAgent {
     public drawImageToCanvas(img: HTMLImageElement, canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) {
         if (!img.complete || img.naturalHeight === 0) return;
 
-        if (canvas.width !== window.innerWidth || canvas.height !== window.innerHeight) {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+        const dpr = window.devicePixelRatio || 1;
+        const currentWidth = window.innerWidth;
+        const currentHeight = window.innerHeight;
+
+        // Only recalculatue layout metrics if window size or DPR changed
+        if (!this.layoutMetrics || 
+            this.layoutMetrics.width !== currentWidth || 
+            this.layoutMetrics.height !== currentHeight ||
+            this.layoutMetrics.dpr !== dpr) {
+            
+            canvas.width = currentWidth * dpr;
+            canvas.height = currentHeight * dpr;
+            
+            const canvasRatio = currentWidth / currentHeight;
+            const imgRatio = img.width / img.height;
+            let drawWidth, drawHeight, offsetX, offsetY;
+
+            if (canvasRatio > imgRatio) {
+                drawWidth = currentWidth * dpr;
+                drawHeight = (currentWidth / imgRatio) * dpr;
+                offsetX = 0;
+                offsetY = (canvas.height - drawHeight) / 2;
+            } else {
+                drawWidth = (currentHeight * imgRatio) * dpr;
+                drawHeight = currentHeight * dpr;
+                offsetX = (canvas.width - drawWidth) / 2;
+                offsetY = 0;
+            }
+
+            this.layoutMetrics = {
+                width: currentWidth,
+                height: currentHeight,
+                drawWidth,
+                drawHeight,
+                offsetX,
+                offsetY,
+                dpr
+            };
         }
 
-        const canvasRatio = canvas.width / canvas.height;
-        const imgRatio = img.width / img.height;
-        let drawWidth, drawHeight, offsetX, offsetY;
-
-        if (canvasRatio > imgRatio) {
-            drawWidth = canvas.width;
-            drawHeight = canvas.width / imgRatio;
-            offsetX = 0;
-            offsetY = (canvas.height - drawHeight) / 2;
-        } else {
-            drawWidth = canvas.height * imgRatio;
-            drawHeight = canvas.height;
-            offsetX = (canvas.width - drawWidth) / 2;
-            offsetY = 0;
-        }
-
+        const m = this.layoutMetrics;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
+        ctx.drawImage(img, m.offsetX, m.offsetY, m.drawWidth, m.drawHeight);
     }
 }
 

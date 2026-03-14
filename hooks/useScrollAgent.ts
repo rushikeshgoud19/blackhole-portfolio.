@@ -9,9 +9,10 @@ interface UseScrollAgentConfig {
     agent: AnimationAgent;
     frameCount: number;
     onReady?: () => void;
+    onProgress?: (loaded: number, total: number) => void;
 }
 
-export function useScrollAgent({ targetRef, agent, frameCount, onReady }: UseScrollAgentConfig) {
+export function useScrollAgent({ targetRef, agent, frameCount, onReady, onProgress }: UseScrollAgentConfig) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const canvasCtxRef = useRef<CanvasRenderingContext2D | null>(null);
     
@@ -67,7 +68,7 @@ export function useScrollAgent({ targetRef, agent, frameCount, onReady }: UseScr
 
     useEffect(() => {
         // High-priority skeleton load for immediate interaction
-        agent.preloadKeyframes(onReady);
+        agent.preloadKeyframes(onReady, onProgress);
 
         const handleResize = () => {
             if (canvasRef.current) {

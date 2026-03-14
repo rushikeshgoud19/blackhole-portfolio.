@@ -1,38 +1,73 @@
 'use client';
 
-import { useState, useMemo, useRef } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { useScrollAgent } from '@/hooks/useScrollAgent';
 import { AnimationAgent } from '@/lib/AnimationAgent';
+import { portfolio } from '@/data/projects';
 
 interface Props {
     folderPath: string;
     totalQuotes?: number;
+    onProgress?: (loaded: number, total: number) => void;
 }
 
-const FRAME_COUNT = 151; // Sampled from 1807 (1/12 step)
-const FRAME_STEP = 12;
+const DESKTOP_MAX = 1807;
+const DESKTOP_STEP = 12;
+const DESKTOP_COUNT = Math.floor(DESKTOP_MAX / DESKTOP_STEP);
+
 const PRELOAD_BATCH = 40;
 
-export default function ProjectCanvasScroll({ folderPath, totalQuotes = 12 }: Props) {
+export default function ProjectCanvasScroll({ folderPath: desktopPath, totalQuotes = 12, onProgress }: Props) {
     const [isReady, setIsReady] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+        const checkMobile = () => setIsMobile(window.innerWidth < 768);
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
+
+    const config = useMemo(() => {
+        if (isMobile) {
+            return {
+                path: portfolio.mobileFolderPath,
+                max: portfolio.mobileMaxFrames,
+                actualMax: portfolio.mobileMaxFrames,
+                step: 1,
+                count: portfolio.mobileMaxFrames,
+                // Simplify naming for mobile as they are 1.jpg, 2.jpg...
+                getName: (idx: number) => `${portfolio.mobileFolderPath}/${idx}.jpg`
+            };
+        }
+        return {
+            path: desktopPath,
+            max: DESKTOP_COUNT,
+            actualMax: DESKTOP_MAX,
+            step: DESKTOP_STEP,
+            count: DESKTOP_COUNT,
+            getName: (idx: number) => {
+                const paddedIndex = idx.toString().padStart(3, '0');
+                return `${desktopPath}/blackhole_frame_${paddedIndex}.jpg`;
+            }
+        };
+    }, [isMobile, desktopPath]);
 
     const agent = useMemo(() => new AnimationAgent({
-        preloadBatchSize: PRELOAD_BATCH,
-        maxFrames: FRAME_COUNT,
-        frameStep: FRAME_STEP,
-        maxActualFrame: 1807,
-        getImageUrl: (actualIndex) => {
-            const paddedIndex = actualIndex.toString().padStart(3, '0');
-            return `${folderPath}/blackhole_frame_${paddedIndex}.jpg`;
-        }
-    }), [folderPath]);
+        preloadBatchSize: isMobile ? 20 : PRELOAD_BATCH, // Smaller batch on mobile to save memory
+        maxFrames: config.count,
+        frameStep: config.step,
+        maxActualFrame: config.actualMax,
+        getImageUrl: config.getName
+    }), [config, isMobile]);
 
     const { canvasRef } = useScrollAgent({
         targetRef: containerRef,
         agent,
-        frameCount: FRAME_COUNT,
-        onReady: () => setIsReady(true)
+        frameCount: config.count,
+        onReady: () => setIsReady(true),
+        onProgress
     });
 
     return (

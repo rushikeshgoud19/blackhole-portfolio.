@@ -141,3 +141,47 @@ body::before {
 .link-underline:hover::after {
   width: 100%;
 }
+
+/* ====== Splash Screen Animations ====== */
+.splash-orbit {
+  animation: splash-spin 18s linear infinite;
+  transform-origin: 170px 170px;
+}
+
+.splash-orbit-slow {
+  animation: splash-spin 35s linear infinite;
+  transform-origin: 170px 170px;
+}
+
+.splash-orbit-rev {
+  animation: splash-spin-rev 22s linear infinite;
+  transform-origin: 170px 170px;
+}
+
+.splash-dot-1 {
+  animation: splash-spin 6s linear infinite;
+  transform-origin: 170px 170px;
+}
+
+.splash-dot-2 {
+  animation: splash-spin 10s linear infinite reverse;
+  transform-origin: 170px 170px;
+}
+
+.splash-letter {
+  transition: text-shadow 0.3s ease;
+}
+
+.splash-letter:hover {
+  text-shadow: 0 0 40px rgba(0, 229, 255, 0.5);
+}
+
+@keyframes splash-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes splash-spin-rev {
+  from { transform: rotate(360deg); }
+  to { transform: rotate(0deg); }
+}

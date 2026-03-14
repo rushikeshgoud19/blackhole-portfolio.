@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import dynamic from 'next/dynamic';
 import { portfolio } from '@/data/projects';
@@ -7,6 +8,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import BentoCard from '@/components/BentoCard';
 import SectionDivider from '@/components/SectionDivider';
+import LoadingScreen from '@/components/LoadingScreen';
 
 // Dynamically import heavy client-side components to speed up initial GET / load
 const ProjectCanvasScroll = dynamic(() => import('@/components/ProjectCanvasScroll'), { ssr: false });
@@ -22,9 +24,34 @@ const FloatingCTA = dynamic(() => import('@/components/FloatingCTA'), { ssr: fal
 
 export default function Home() {
     const project = portfolio;
+    const [isLoading, setIsLoading] = useState(true);
+    const [loadProgress, setLoadProgress] = useState(0);
+
+    // Lock scroll during splash
+    useEffect(() => {
+        if (isLoading) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+        return () => { document.body.style.overflow = ''; };
+    }, [isLoading]);
+
+    const handleLoadProgress = useCallback((loaded: number, total: number) => {
+        setLoadProgress(Math.round((loaded / total) * 100));
+    }, []);
+
+    const handleSplashComplete = useCallback(() => {
+        setIsLoading(false);
+    }, []);
 
     return (
         <main className="relative bg-black min-h-screen hide-default-cursor">
+            {/* Cinematic Pre-loader Splash */}
+            {isLoading && (
+                <LoadingScreen progress={loadProgress} onComplete={handleSplashComplete} />
+            )}
+
             <CustomCursor />
             <ScrollToTop />
             <Navbar />
@@ -39,7 +66,7 @@ export default function Home() {
                 {/* Scroll Engine & Texts */}
                 {/* Unified Animation Engine: Black Hole -> Shatter */}
                 <div className="relative z-10 w-full snap-start">
-                    <ProjectCanvasScroll folderPath={project.folderPath} totalQuotes={project.quotes.length} />
+                    <ProjectCanvasScroll folderPath={project.folderPath} totalQuotes={project.quotes.length} onProgress={handleLoadProgress} />
                     <ProjectTextOverlays project={project} />
                     <ShatterCanvasScroll />
                 </div>
@@ -74,7 +101,7 @@ export default function Home() {
                 <SectionDivider />
 
                 {/* ========== PREMIUM DETAILS SECTION ========== */}
-                <div className="snap-start relative">
+                <div className="relative">
                     <section id="portfolio-details" className="relative z-20 py-32 px-6 bg-black scroll-mt-24 overflow-hidden">
                         {/* Background Orbs */}
                         <div className="absolute top-20 left-0 w-[600px] h-[600px] rounded-full blur-[180px] opacity-[0.08] pointer-events-none" style={{ backgroundColor: project.themeColor }} />
