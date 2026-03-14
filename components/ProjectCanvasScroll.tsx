@@ -20,7 +20,7 @@ const PRELOAD_BATCH = 40;
 export default function ProjectCanvasScroll({ folderPath: desktopPath, totalQuotes = 12, onProgress }: Props) {
     const [isReady, setIsReady] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
-    const [isMobile, setIsMobile] = useState(false);
+    const [isMobile, setIsMobile] = useState<boolean | null>(null);
 
     useEffect(() => {
         const checkMobile = () => setIsMobile(window.innerWidth < 768);
@@ -30,6 +30,7 @@ export default function ProjectCanvasScroll({ folderPath: desktopPath, totalQuot
     }, []);
 
     const config = useMemo(() => {
+        if (isMobile === null) return null;
         if (isMobile) {
             return {
                 path: portfolio.mobileFolderPath,
@@ -37,7 +38,6 @@ export default function ProjectCanvasScroll({ folderPath: desktopPath, totalQuot
                 actualMax: portfolio.mobileMaxFrames,
                 step: 1,
                 count: portfolio.mobileMaxFrames,
-                // Simplify naming for mobile as they are 1.jpg, 2.jpg...
                 getName: (idx: number) => `${portfolio.mobileFolderPath}/${idx}.jpg`
             };
         }
@@ -54,18 +54,21 @@ export default function ProjectCanvasScroll({ folderPath: desktopPath, totalQuot
         };
     }, [isMobile, desktopPath]);
 
-    const agent = useMemo(() => new AnimationAgent({
-        preloadBatchSize: isMobile ? 20 : PRELOAD_BATCH, // Smaller batch on mobile to save memory
-        maxFrames: config.count,
-        frameStep: config.step,
-        maxActualFrame: config.actualMax,
-        getImageUrl: config.getName
-    }), [config, isMobile]);
+    const agent = useMemo(() => {
+        if (!config) return null;
+        return new AnimationAgent({
+            preloadBatchSize: isMobile ? 20 : PRELOAD_BATCH,
+            maxFrames: config.count,
+            frameStep: config.step,
+            maxActualFrame: config.actualMax,
+            getImageUrl: config.getName
+        });
+    }, [config, isMobile]);
 
     const { canvasRef } = useScrollAgent({
         targetRef: containerRef,
-        agent,
-        frameCount: config.count,
+        agent: agent!,
+        frameCount: config?.count || 0,
         onReady: () => setIsReady(true),
         onProgress
     });
@@ -73,12 +76,14 @@ export default function ProjectCanvasScroll({ folderPath: desktopPath, totalQuot
     return (
         <div ref={containerRef} className="relative w-full" style={{ height: `${totalQuotes * 100}vh` }}>
             <div className="sticky top-0 h-screen w-full overflow-hidden bg-black">
-                <canvas
-                    data-testid="project-canvas"
-                    ref={canvasRef}
-                    className={`absolute inset-0 h-full w-full object-cover opacity-80 transition-opacity duration-1000 will-change-transform ${isReady ? 'opacity-80' : 'opacity-0'}`}
-                    style={{ transform: 'translateZ(0)' }}
-                />
+                {isMobile !== null && (
+                    <canvas
+                        data-testid="project-canvas"
+                        ref={canvasRef}
+                        className={`absolute inset-0 h-full w-full object-cover opacity-80 transition-opacity duration-1000 will-change-transform ${isReady ? 'opacity-80' : 'opacity-0'}`}
+                        style={{ transform: 'translateZ(0)' }}
+                    />
+                )}
                 <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black pointer-events-none" />
             </div>
         </div>

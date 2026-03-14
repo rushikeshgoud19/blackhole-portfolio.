@@ -123,29 +123,29 @@ const RocketShip = ({ progress, phase }: { progress: number; phase: string }) =>
     return (
         <motion.div
             className="absolute z-[100] pointer-events-none"
-            initial={{ left: '-10%', top: '110%', rotate: 45, scale: 0.8 }}
+            initial={{ left: '-15%', top: '115%', rotate: 45, scale: 1 }}
             animate={{
                 left: x,
                 top: y,
                 rotate: 45,
-                scale: phase === 'loaded' ? [1, 1.2, 0] : 1,
+                scale: phase === 'loaded' ? [1.5, 2.2, 0] : (progress > 50 ? 1.5 : 1.2),
                 opacity: phase === 'exit' ? 0 : 1,
-                filter: phase === 'loaded' ? 'blur(10px)' : 'blur(0px)',
+                filter: phase === 'loaded' ? 'blur(15px)' : 'blur(0px)',
             }}
             transition={{
-                duration: phase === 'loaded' ? 2.5 : 0.5, // Slower final push
-                ease: phase === 'loaded' ? 'easeInOut' : 'linear',
+                duration: phase === 'loaded' ? 2.5 : 0.4,
+                ease: phase === 'loaded' ? 'easeInOut' : 'easeOut',
             }}
             style={{ x: '-50%', y: '-50%' }}
         >
-            {/* Rocket SVG */}
-            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            {/* Rocket SVG - Scaled up for visibility */}
+            <svg width="80" height="80" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <motion.path
                     d="M20 35C20 35 15 30 15 25C15 20 20 20 20 20C20 20 25 20 25 25C25 30 20 35 20 35Z"
                     fill="url(#flameGrad)"
-                    animate={{ scaleY: [1, 1.8, 1], opacity: [0.8, 1, 0.8] }}
-                    transition={{ duration: 0.08, repeat: Infinity }}
-                    style={{ transformOrigin: 'top center' }}
+                    animate={{ scaleY: [1.2, 2.2, 1.2], opacity: [0.9, 1, 0.9] }}
+                    transition={{ duration: 0.15, repeat: Infinity, ease: 'linear' }}
+                    style={{ transformOrigin: '20px 20px' }}
                 />
                 <path d="M20 5C20 5 12 15 12 25C12 30 15 32 20 32C25 32 28 30 28 25C28 15 20 5 20 5Z" fill="#F4F4F4" />
                 <path d="M20 5C20 5 15 15 15 25C15 28 17 30 20 30V5Z" fill="#E2E2E2" />

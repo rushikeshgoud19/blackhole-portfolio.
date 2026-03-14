@@ -34,12 +34,13 @@ export function useScrollAgent({ targetRef, agent, frameCount, onReady, onProgre
     });
 
     useEffect(() => {
+        if (!agent) return;
+
         const renderLoop = () => {
             currentFrame.current += (targetFrame.current - currentFrame.current) * 0.15;
             const index = Math.min(Math.max(Math.round(currentFrame.current), 1), frameCount);
 
             if (index !== lastDrawnFrameIndex.current) {
-                // Try to get the exact frame OR the nearest available frame instantly
                 let img = agent.getNearestFrame(index);
 
                 if (img) {
@@ -52,7 +53,6 @@ export function useScrollAgent({ targetRef, agent, frameCount, onReady, onProgre
                     }
                 }
 
-                // Passive background load nearby frames
                 agent.preloadImages(index);
             }
 
@@ -67,6 +67,8 @@ export function useScrollAgent({ targetRef, agent, frameCount, onReady, onProgre
     }, [agent, frameCount]);
 
     useEffect(() => {
+        if (!agent) return;
+
         // High-priority skeleton load for immediate interaction
         agent.preloadKeyframes(onReady, onProgress);
 
@@ -80,7 +82,6 @@ export function useScrollAgent({ targetRef, agent, frameCount, onReady, onProgre
             }
         };
 
-        // Setup canvas delay to wait for first load/DOM
         setTimeout(() => handleResize(), 100);
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
